@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信表情渲染器 - 原生JS示例</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            min-height: 600px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #07c160;
+            box-shadow: 0 0 0 2px rgba(7, 193, 96, 0.1);
+        }
+
+        .emoji-picker-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            flex: 1;
+        }
+
+        .emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 6px;
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 8px;
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+
+        .emoji-picker::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .emoji-picker::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .emoji-picker::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .emoji-picker::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        .emoji-item {
+            border: none;
+            background: white;
+            padding: 6px;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            width: 32px;
+            height: 32px;
+        }
+
+        .emoji-item:hover {
+            background-color: #07c160;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
+        }
+
+        .emoji-item:active {
+            transform: translateY(0);
+        }
+
+        .controls-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            font-size: 14px;
+            color: #666;
+            min-width: 80px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #07c160;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-value {
+            font-size: 14px;
+            color: #333;
+            min-width: 40px;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .preview-content {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            line-height: 1.6;
+            font-size: 16px;
+            min-height: 200px;
+            overflow-y: auto;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .preview-content:empty::before {
+            content: "在左侧输入文本，这里将显示渲染结果...";
+            color: #999;
+            font-style: italic;
+        }
+
+        .wechat-emoji {
+            background-image: url('./sprite.png');
+            background-repeat: no-repeat;
+            position: relative;
+            margin: 0 1px;
+            vertical-align: text-bottom;
+            top: -1px;
+        }
+
+        button {
+            background: #07c160;
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #06ad56;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .copy-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .container {
+                padding: 16px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .emoji-picker {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 微信表情渲染器 - 原生JS示例</h1>
+        
+        <div class="main-layout">
+            <div class="left-panel">
+                <div class="input-section">
+                    <div class="section-title">📝 文本输入</div>
+                    <textarea id="inputText" placeholder="输入包含表情的文本，如：你好[微笑]今天天气不错[太阳]">你好[微笑]今天天气不错[太阳]，心情很好[愉快]！</textarea>
+                </div>
+
+                <div class="emoji-picker-section">
+                    <div class="section-title">😊 表情选择器</div>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 12px;">点击表情可以插入到文本中并复制：</p>
+                    <div class="emoji-picker" id="emojiPicker"></div>
+                </div>
+
+                <div class="controls-section">
+                    <div class="section-title">🔧 自定义选项</div>
+                    <div class="control-group">
+                        <span class="control-label">表情大小:</span>
+                        <input type="range" id="sizeSlider" min="16" max="32" value="20">
+                        <span class="control-value" id="sizeValue">20px</span>
+                    </div>
+                    <div class="control-group">
+                        <span class="control-label">缩放比例:</span>
+                        <input type="range" id="scaleSlider" min="1" max="2" step="0.1" value="1.3">
+                        <span class="control-value" id="scaleValue">1.3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="section-title">🖼️ 预览效果</div>
+                <div class="preview-content" id="output"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copy-feedback" id="copyFeedback"></div>
+
+    <script>
+        /*
+         * WeChat emoji data
+         */
+        const wechatEmojis = [
+            { name: '微笑', code: '[微笑]', position: [1, 1] },
+            { name: '撇嘴', code: '[撇嘴]', position: [1, 2] },
+            { name: '色', code: '[色]', position: [1, 3] },
+            { name: '发呆', code: '[发呆]', position: [1, 4] },
+            { name: '得意', code: '[得意]', position: [1, 5] },
+            { name: '流泪', code: '[流泪]', position: [1, 6] },
+            { name: '害羞', code: '[害羞]', position: [1, 7] },
+            { name: '闭嘴', code: '[闭嘴]', position: [1, 8] },
+            { name: '睡', code: '[睡]', position: [1, 9] },
+            { name: '大哭', code: '[大哭]', position: [2, 1] },
+            { name: '尴尬', code: '[尴尬]', position: [2, 2] },
+            { name: '发怒', code: '[发怒]', position: [2, 3] },
+            { name: '调皮', code: '[调皮]', position: [2, 4] },
+            { name: '呲牙', code: '[呲牙]', position: [2, 5] },
+            { name: '惊讶', code: '[惊讶]', position: [2, 6] },
+            { name: '难过', code: '[难过]', position: [2, 7] },
+            { name: '冷汗', code: '[冷汗]', position: [2, 8] },
+            { name: '抓狂', code: '[抓狂]', position: [2, 9] },
+            { name: '吐', code: '[吐]', position: [3, 1] },
+            { name: '偷笑', code: '[偷笑]', position: [3, 2] },
+            { name: '愉快', code: '[愉快]', position: [3, 3] },
+            { name: '白眼', code: '[白眼]', position: [3, 4] },
+            { name: '傲慢', code: '[傲慢]', position: [3, 5] },
+            { name: '困', code: '[困]', position: [3, 6] },
+            { name: '惊恐', code: '[惊恐]', position: [3, 7] },
+            { name: '憨笑', code: '[憨笑]', position: [3, 8] },
+            { name: '悠闲', code: '[悠闲]', position: [3, 9] },
+            { name: '咒骂', code: '[咒骂]', position: [4, 1] },
+            { name: '疑问', code: '[疑问]', position: [4, 2] },
+            { name: '嘘', code: '[嘘]', position: [4, 3] },
+            { name: '晕', code: '[晕]', position: [4, 4] },
+            { name: '衰', code: '[衰]', position: [4, 5] },
+            { name: '骷髅', code: '[骷髅]', position: [4, 6] },
+            { name: '敲打', code: '[敲打]', position: [4, 7] },
+            { name: '再见', code: '[再见]', position: [4, 8] },
+            { name: '擦汗', code: '[擦汗]', position: [4, 9] },
+            { name: '抠鼻', code: '[抠鼻]', position: [5, 1] },
+            { name: '鼓掌', code: '[鼓掌]', position: [5, 2] },
+            { name: '坏笑', code: '[坏笑]', position: [5, 3] },
+            { name: '右哼哼', code: '[右哼哼]', position: [5, 4] },
+            { name: '鄙视', code: '[鄙视]', position: [5, 5] },
+            { name: '快哭了', code: '[快哭了]', position: [5, 6] },
+            { name: '委屈', code: '[委屈]', position: [5, 7] },
+            { name: '阴险', code: '[阴险]', position: [5, 8] },
+            { name: '亲亲', code: '[亲亲]', position: [5, 9] },
+            { name: '可怜', code: '[可怜]', position: [6, 1] },
+            { name: '笑脸', code: '[笑脸]', position: [6, 2] },
+            { name: '生病', code: '[生病]', position: [6, 3] },
+            { name: '脸红', code: '[脸红]', position: [6, 4] },
+            { name: '破涕为笑', code: '[破涕为笑]', position: [6, 5] },
+            { name: '恐惧', code: '[恐惧]', position: [6, 6] },
+            { name: '失望', code: '[失望]', position: [6, 7] },
+            { name: '无语', code: '[无语]', position: [6, 8] },
+            { name: '嘿哈', code: '[嘿哈]', position: [6, 9] },
+            { name: '捂脸', code: '[捂脸]', position: [7, 1] },
+            { name: '奸笑', code: '[奸笑]', position: [7, 2] },
+            { name: '机智', code: '[机智]', position: [7, 3] },
+            { name: '皱眉', code: '[皱眉]', position: [7, 4] },
+            { name: '耶', code: '[耶]', position: [7, 5] },
+            { name: '吃瓜', code: '[吃瓜]', position: [7, 6] },
+            { name: '加油', code: '[加油]', position: [7, 7] },
+            { name: '汗', code: '[汗]', position: [7, 8] },
+            { name: '天啊', code: '[天啊]', position: [7, 9] },
+            { name: 'Emm', code: '[Emm]', position: [8, 1] },
+            { name: '社会社会', code: '[社会社会]', position: [8, 2] },
+            { name: '旺柴', code: '[旺柴]', position: [8, 3] },
+            { name: '好的', code: '[好的]', position: [8, 4] },
+            { name: '打脸', code: '[打脸]', position: [8, 5] },
+            { name: '哇', code: '[哇]', position: [8, 6] },
+            { name: '翻白眼', code: '[翻白眼]', position: [8, 7] },
+            { name: '666', code: '[666]', position: [8, 8] },
+            { name: '让我看看', code: '[让我看看]', position: [8, 9] },
+            { name: '叹气', code: '[叹气]', position: [9, 1] },
+            { name: '苦涩', code: '[苦涩]', position: [9, 2] },
+            { name: '裂开', code: '[裂开]', position: [9, 3] },
+            { name: '嘴唇', code: '[嘴唇]', position: [9, 4] },
+            { name: '爱心', code: '[爱心]', position: [9, 5] },
+            { name: '心碎', code: '[心碎]', position: [9, 6] },
+            { name: '拥抱', code: '[拥抱]', position: [9, 7] },
+            { name: '强', code: '[强]', position: [9, 8] },
+            { name: '弱', code: '[弱]', position: [9, 9] },
+            { name: '握手', code: '[握手]', position: [10, 1] },
+            { name: '胜利', code: '[胜利]', position: [10, 2] },
+            { name: '抱拳', code: '[抱拳]', position: [10, 3] },
+            { name: '勾引', code: '[勾引]', position: [10, 4] },
+            { name: '拳头', code: '[拳头]', position: [10, 5] },
+            { name: 'OK', code: '[OK]', position: [10, 6] },
+            { name: '合十', code: '[合十]', position: [10, 7] },
+            { name: '啤酒', code: '[啤酒]', position: [10, 8] },
+            { name: '咖啡', code: '[咖啡]', position: [10, 9] },
+            { name: '蛋糕', code: '[蛋糕]', position: [11, 1] },
+            { name: '玫瑰', code: '[玫瑰]', position: [11, 2] },
+            { name: '凋谢', code: '[凋谢]', position: [11, 3] },
+            { name: '菜刀', code: '[菜刀]', position: [11, 4] },
+            { name: '炸弹', code: '[炸弹]', position: [11, 5] },
+            { name: '便便', code: '[便便]', position: [11, 6] },
+            { name: '月亮', code: '[月亮]', position: [11, 7] },
+            { name: '太阳', code: '[太阳]', position: [11, 8] },
+            { name: '庆祝', code: '[庆祝]', position: [11, 9] },
+            { name: '礼物', code: '[礼物]', position: [12, 1] },
+            { name: '红包', code: '[红包]', position: [12, 2] },
+            { name: '福', code: '[福]', position: [12, 3] },
+            { name: '烟花', code: '[烟花]', position: [12, 4] },
+            { name: '爆竹', code: '[爆竹]', position: [12, 5] },
+            { name: '猪头', code: '[猪头]', position: [12, 6] },
+            { name: '跳跳', code: '[跳跳]', position: [12, 7] },
+            { name: '发抖', code: '[发抖]', position: [12, 8] },
+            { name: '转圈', code: '[转圈]', position: [12, 9] }
+        ];
+
+        /*
+         * Sprite sheet configuration
+         */
+        const size = 32; /* single emoji size */
+        const totalRows = 12; /* total rows */
+        const totalCols = 9; /* total columns */
+
+        /*
+         * Create emoji mapping
+         */
+        const emojiMap = new Map();
+        wechatEmojis.forEach(emoji => {
+            emojiMap.set(emoji.code, emoji);
+        });
+
+        /*
+         * Calculate background position
+         */
+        function calculateBackgroundPosition(position, emojiSize = 24, bgScale = 1.3) {
+            const [row, col] = position;
+            const rowIndex = row - 1;
+            const colIndex = col - 1;
+            
+            const bgSize = size * bgScale;
+            const offset = (bgSize - emojiSize) / 2;
+            
+            const x = -(colIndex * bgSize + offset);
+            const y = -(rowIndex * bgSize + offset);
+            
+            return `${x}px ${y}px`;
+        }
+
+        /*
+         * Calculate background style
+         */
+        function calculateBackgroundStyle(position, emojiSize = 24, bgScale = 1.3) {
+            const bgSize = size * bgScale;
+            const backgroundPosition = calculateBackgroundPosition(position, emojiSize, bgScale);
+            const backgroundSize = `${bgSize * totalCols}px ${bgSize * totalRows}px`;
+            
+            return {
+                backgroundPosition,
+                backgroundSize,
+                width: `${emojiSize}px`,
+                height: `${emojiSize}px`,
+                display: 'inline-block',
+                verticalAlign: 'middle'
+            };
+        }
+
+        /*
+         * Render WeChat emoji text to HTML
+         */
+        function renderWechatEmoji(text, options = {}) {
+            const {
+                emojiSize = 24,
+                bgScale = 1.3,
+                spriteUrl = './sprite.png',
+                className = 'wechat-emoji'
+            } = options;
+
+            return text.replace(/\[([^\]]+)\]/g, (match, emojiName) => {
+                const emojiCode = `[${emojiName}]`;
+                const emoji = emojiMap.get(emojiCode);
+                
+                if (!emoji) {
+                    return match;
+                }
+
+                const style = calculateBackgroundStyle(emoji.position, emojiSize, bgScale);
+                
+                const styleStr = Object.entries({
+                    ...style,
+                    backgroundImage: `url(${spriteUrl})`,
+                    backgroundRepeat: 'no-repeat',
+                    position: 'relative'
+                }).map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}:${value}`).join(';');
+
+                return `<span class="${className}" style="${styleStr}" title="${emojiName}"><i style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:99;opacity:0.01">${emojiCode}</i></span>`;
+            });
+        }
+
+        /*
+         * Get emoji style object
+         */
+        function getEmojiStyle(emojiCode, options = {}) {
+            const {
+                emojiSize = 24,
+                bgScale = 1.3,
+                spriteUrl = './sprite.png'
+            } = options;
+
+            const emoji = emojiMap.get(emojiCode);
+            
+            if (!emoji) {
+                return null;
+            }
+
+            const style = calculateBackgroundStyle(emoji.position, emojiSize, bgScale);
+            
+            return {
+                ...style,
+                backgroundImage: `url(${spriteUrl})`,
+                backgroundRepeat: 'no-repeat',
+                position: 'relative'
+            };
+        }
+
+        /*
+         * Copy text to clipboard
+         */
+        async function copyToClipboard(text) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } else {
+                    /*
+                     * Fallback approach
+                     */
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    const result = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    return result;
+                }
+            } catch (err) {
+                console.error('复制失败:', err);
+                return false;
+            }
+        }
+
+        /*
+         * Show copy feedback message
+         */
+        function showCopyFeedback(message) {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.textContent = message;
+            feedback.style.display = 'block';
+            
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 2000);
+        }
+
+        /*
+         * Initialize emoji picker
+         */
+        function initEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            
+            wechatEmojis.forEach(emoji => {
+                const button = document.createElement('button');
+                button.className = 'emoji-item';
+                button.title = emoji.name;
+                
+                const span = document.createElement('span');
+                const style = getEmojiStyle(emoji.code, { emojiSize: 24 });
+                if (style) {
+                    Object.assign(span.style, style);
+                }
+                
+                button.appendChild(span);
+                
+                button.addEventListener('click', async () => {
+                    const input = document.getElementById('inputText');
+                    input.value += emoji.code;
+                    updateRender();
+                    
+                    /*
+                     * Copy emoji code to clipboard
+                     */
+                    const success = await copyToClipboard(emoji.code);
+                    showCopyFeedback(success ? `已复制 ${emoji.code}` : '复制失败');
+                });
+                
+                picker.appendChild(button);
+            });
+        }
+
+        /*
+         * Update rendering
+         */
+        function updateRender() {
+            const input = document.getElementById('inputText');
+            const output = document.getElementById('output');
+            const emojiSize = parseInt(document.getElementById('sizeSlider').value);
+            const bgScale = parseFloat(document.getElementById('scaleSlider').value);
+            
+            const rendered = renderWechatEmoji(input.value, { emojiSize, bgScale });
+            output.innerHTML = rendered;
+        }
+
+        /*
+         * Initialize application
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            initEmojiPicker();
+            
+            /*
+             * Bind events
+             */
+            document.getElementById('inputText').addEventListener('input', updateRender);
+            
+            document.getElementById('sizeSlider').addEventListener('input', (e) => {
+                document.getElementById('sizeValue').textContent = e.target.value + 'px';
+            });
+            
+            document.getElementById('scaleSlider').addEventListener('input', (e) => {
+                document.getElementById('scaleValue').textContent = e.target.value;
+            });
+            
+            /*
+             * Initial render
+             */
+            updateRender();
+        });
+    </script>
+</body>
+</html> 
