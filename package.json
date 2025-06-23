@@ -18,9 +18,10 @@
     },
     "./vue": {
       "types": "./dist/vue/index.d.ts",
-      "import": "./dist/vue/index.js",
-      "require": "./dist/vue/index.cjs"
-    }
+      "import": "./dist/vue/wechat-emoji-renderer-vue.es.js",
+      "require": "./dist/vue/wechat-emoji-renderer-vue.umd.js"
+    },
+    "./dist/vue/style.css": "./dist/vue/style.css"
   },
   "files": [
     "dist",
@@ -30,7 +31,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "npm run clean && tsup && npm run build:vue",
+    "build:vue": "vite build --config ./vue/vite.config.ts",
     "dev": "tsup --watch",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
@@ -59,9 +61,14 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^24.0.3",
     "@types/react": "^18.0.0",
+    "@vitejs/plugin-vue": "^5.1.0",
+    "ts-node": "^10.9.2",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
+    "vite": "^5.3.5",
+    "vite-plugin-dts": "^3.9.1",
     "vue": "^3.0.0"
   }
-} 
+}

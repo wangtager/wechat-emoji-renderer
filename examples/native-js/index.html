@@ -139,6 +139,7 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             width: 32px;
             height: 32px;
+            box-sizing: content-box;
         }
 
         .emoji-item:hover {
@@ -309,7 +310,7 @@
                     <div class="section-title">🔧 自定义选项</div>
                     <div class="control-group">
                         <span class="control-label">表情大小:</span>
-                        <input type="range" id="sizeSlider" min="16" max="32" value="20">
+                        <input type="range" id="sizeSlider" min="16" max="32" value="24">
                         <span class="control-value" id="sizeValue">20px</span>
                     </div>
                     <div class="control-group">

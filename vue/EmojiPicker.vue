@@ -57,7 +57,7 @@ const containerStyle = computed(() => ({
   overflowY: 'auto',
   boxSizing: 'border-box',
   ...props.style
-}))
+} as Record<string, any>))
 
 const getButtonStyle = () => ({
   border: 'none',

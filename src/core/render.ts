@@ -70,7 +70,7 @@ export function getEmojiStyle(
     bgScale?: number
     spriteUrl?: string
   } = {}
-): React.CSSProperties | null {
+): Record<string, any> | null {
   const {
     emojiSize = 24,
     bgScale = 1.3,
@@ -88,7 +88,7 @@ export function getEmojiStyle(
     ...style,
     backgroundImage: `url(${spriteUrl})`,
     backgroundRepeat: 'no-repeat',
-    position: 'relative' as const
+    position: 'relative'
   }
 }
 
