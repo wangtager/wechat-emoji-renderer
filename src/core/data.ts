@@ -17,7 +17,7 @@ export const totalCols = 9 /* total columns */
 /*
  * Complete WeChat emoji list (based on existing project data)
  */
-export const wechatEmojis: WechatEmoji[] = [
+export const wechatEmojiList: WechatEmoji[] = [
   { name: '微笑', code: '[微笑]', position: [1, 1] },
   { name: '撇嘴', code: '[撇嘴]', position: [1, 2] },
   { name: '色', code: '[色]', position: [1, 3] },
@@ -132,14 +132,14 @@ export const wechatEmojis: WechatEmoji[] = [
  * Create a quick lookup Map for emoji codes
  */
 export const emojiMap = new Map<string, WechatEmoji>()
-wechatEmojis.forEach(emoji => {
+wechatEmojiList.forEach(emoji => {
   emojiMap.set(emoji.code, emoji)
 })
 
 /*
  * Export emoji codes list
  */
-export const emojiCodes = wechatEmojis.map(emoji => emoji.code)
+export const emojiCodes = wechatEmojiList.map(emoji => emoji.code)
 
 /**
  * Calculate background position for sprite sheet based on row and column position

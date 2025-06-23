@@ -2,6 +2,10 @@
   "name": "wechat-emoji-renderer",
   "version": "1.0.0",
   "description": "微信表情渲染器 - 支持 React、Vue3 和原生 JavaScript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangtager/wechat-emoji-renderer.git"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",

@@ -4,7 +4,7 @@
     :style="containerStyle"
   >
     <button
-      v-for="emoji in wechatEmojis"
+      v-for="emoji in wechatEmojiList"
       :key="emoji.code"
       class="emoji-item"
       :style="getButtonStyle()"
@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { wechatEmojis } from '../src/core/data'
+import { wechatEmojiList } from '../src/core/data'
 import { getEmojiStyle } from '../src/core/render'
 
 export interface EmojiPickerProps {

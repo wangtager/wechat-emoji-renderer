@@ -1,5 +1,7 @@
 # 微信表情渲染器 (Wechat Emoji Renderer)
 
+[![npm version](https://img.shields.io/npm/v/wechat-emoji-renderer.svg)](https://www.npmjs.com/package/wechat-emoji-renderer)
+
 一个支持 React、Vue3 和原生 JavaScript 的微信表情渲染库，可以将文本中的表情代码（如 `[微笑]`）转换为对应的表情图标。
 
 ## ✨ 特性
@@ -102,7 +104,7 @@ const onClickEmoji = (emoji) => {
     <div id="picker"></div>
 
     <script type="module">
-        import { renderWechatEmoji, wechatEmojis, getEmojiStyle } from 'wechat-emoji-renderer';
+        import { renderWechatEmoji, wechatEmojiList, getEmojiStyle } from 'wechat-emoji-renderer';
 
         // 渲染文本
         const text = '你好[微笑]，今天天气不错[太阳]';
@@ -111,7 +113,7 @@ const onClickEmoji = (emoji) => {
 
         // 创建表情选择器
         const picker = document.getElementById('picker');
-        wechatEmojis.forEach(emoji => {
+        wechatEmojiList.forEach(emoji => {
             const button = document.createElement('button');
             const span = document.createElement('span');
             

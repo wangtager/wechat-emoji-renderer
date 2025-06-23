@@ -2,7 +2,7 @@
  * Core functionality exports
  */
 export { renderWechatEmoji, extractTextFromHtml } from './core/render'
-export { wechatEmojis, emojiMap, emojiCodes } from './core/data'
+export { wechatEmojiList, emojiMap, emojiCodes } from './core/data'
 export { copyToClipboard, isClipboardSupported } from './utils/copy'
 
 /*

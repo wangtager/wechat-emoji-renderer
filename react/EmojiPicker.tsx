@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { wechatEmojis, type WechatEmoji } from '../src/core/data'
+import { wechatEmojiList, type WechatEmoji } from '../src/core/data'
 import { getEmojiStyle } from '../src/core/render'
 
 export interface EmojiPickerProps {
@@ -78,7 +78,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
         ...style
       }}
     >
-      {wechatEmojis.map(emoji => {
+      {wechatEmojiList.map(emoji => {
         const emojiStyle = getEmojiStyle(emoji.code, {
           emojiSize,
           bgScale,

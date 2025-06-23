@@ -334,7 +334,7 @@
         /*
          * WeChat emoji data
          */
-        const wechatEmojis = [
+        const wechatEmojiList = [
             { name: '微笑', code: '[微笑]', position: [1, 1] },
             { name: '撇嘴', code: '[撇嘴]', position: [1, 2] },
             { name: '色', code: '[色]', position: [1, 3] },
@@ -456,7 +456,7 @@
          * Create emoji mapping
          */
         const emojiMap = new Map();
-        wechatEmojis.forEach(emoji => {
+        wechatEmojiList.forEach(emoji => {
             emojiMap.set(emoji.code, emoji);
         });
 
@@ -598,7 +598,7 @@
         function initEmojiPicker() {
             const picker = document.getElementById('emojiPicker');
             
-            wechatEmojis.forEach(emoji => {
+            wechatEmojiList.forEach(emoji => {
                 const button = document.createElement('button');
                 button.className = 'emoji-item';
                 button.title = emoji.name;
